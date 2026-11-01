@@ -26,19 +26,18 @@ Terminal A: Ejecutar Flink SQL (job de larga duración):
 ```bash
 docker compose exec jobmanager ./bin/sql-client.sh -f /opt/flink/usrlib/streaming.sql
 ```
-Terminal B: Ejecutar el productor para reproducir 5000 viajes (`MAX_EVENTS`) a
-20 eventos/s (`EVENTS_PER_SECOND`) y publicarlos en Kafka. Cada fila recibe un
-`event_id` determinista; `REPLAY_RUN_ID` permite identificar una ejecución concreta.
+Terminal B: Ejecutar el productor para reproducir 5000 viajes (`MAX_EVENTS`) a 20 eventos/s (`EVENTS_PER_SECOND`) y publicarlos en Kafka. 
+Cada fila recibe un `event_id` determinista; `REPLAY_RUN_ID` permite identificar una ejecución concreta.
 ```bash
 docker compose --profile ingest run --rm producer
 ```
-Terminal C: observar resultados Flink y persistencia:
+Terminal C: Consultar los resultados de Flink y proceso de persistencia de eventos en DataLake:
 ```bash
 docker compose logs -f taskmanager
 docker compose logs -f lake-writer
 docker compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:29092 --topic nyc.taxi.trips --from-beginning --max-messages 3
 ```
-Ejecutar Spark después de tener eventos persistidos:
+Ejecutar el procesamiento en Batch usando Spark después de tener eventos persistidos en DataLake:
 ```bash
 docker compose exec spark python spark/historical_analysis.py
 docker compose exec spark python spark/stream_comparison.py
